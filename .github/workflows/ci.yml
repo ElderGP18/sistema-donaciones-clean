@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline - DonaTu
 
 on:
   push:
@@ -7,48 +7,58 @@ on:
     branches: [main]
 
 jobs:
-  backend-lint-test:
-    name: Backend - Lint & Test
+  php-lint:
+    name: PHP Syntax Check
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Check PHP syntax (lint)
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" | \
+          xargs -I{} php -l {} | grep -v "No syntax errors" && exit 1 || echo "All PHP files OK"
+
+  php-style:
+    name: PHP Code Style
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: phpcs
+
+      - name: Run PHPCS
+        run: |
+          phpcs --standard=PSR12 --extensions=php \
+            --ignore=vendor/ \
+            --warning-severity=0 \
+            . || true
+
+  sql-validate:
+    name: Validate SQL Schema
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: donatu_db
+        ports: ['3306:3306']
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
-
-      - name: Install backend dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: Run backend tests
-        working-directory: backend
-        run: npm test
-
-  frontend-build:
-    name: Frontend - Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
+      - name: Import and validate SQL schema
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot donatu_db < database/donatu.sql
+          echo "Schema imported successfully"
+          mysql -h 127.0.0.1 -uroot -proot donatu_db -e "SHOW TABLES;"

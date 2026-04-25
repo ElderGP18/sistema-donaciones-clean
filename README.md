@@ -1,96 +1,98 @@
-# Sistema de Gestión de Donaciones y Rendición de Cuentas
+# DonaTu — Plataforma de Gestión de Donaciones y Rendición de Cuentas
 
-Plataforma web para la gestión transparente de donaciones, seguimiento de beneficiarios y rendición de cuentas a donantes.
+Plataforma web para la gestión transparente de donaciones, seguimiento de egresos y rendición de cuentas a donantes.
 
-## Descripción
+**Alumno:** Elder Estuardo García Pacheco | **Carné:** 0900 24 9106  
+**Universidad Mariano Gálvez** | Ingeniería de Software
 
-Sistema que permite a organizaciones sin fines de lucro registrar donaciones, gestionar proyectos financiados, reportar el uso de los fondos y brindar transparencia total a los donantes mediante un portal de consulta.
+---
 
 ## Stack Tecnológico
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | React + Vite + TailwindCSS |
-| Backend / API | Node.js + Express |
-| Base de datos | PostgreSQL |
-| Autenticación | JWT + bcrypt |
-| Infraestructura | Railway / Render |
+| Frontend | HTML5, CSS3, JavaScript, Bootstrap (via CDN) |
+| Backend | PHP 8.1 |
+| Base de datos | MySQL 8.0 |
+| Control de versiones | Git + GitHub |
 | CI/CD | GitHub Actions |
 
 ## Estructura del Proyecto
 
 ```
-sistema-donaciones/
-├── backend/          # API REST con Node.js + Express
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   └── config/
-│   ├── tests/
-│   └── package.json
-├── frontend/         # React + Vite + TailwindCSS
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── context/
-│   └── package.json
-├── docs/             # Documentación del proyecto
-│   ├── fase1/
-│   └── fase2/
-├── .github/
-│   └── workflows/    # Pipelines CI/CD
-└── docker-compose.yml
+donatu/
+├── index.php               # Página pública con campañas
+├── login.php               # Autenticación
+├── logout.php
+├── dashboard.php           # Panel administrativo
+├── config/
+│   ├── app.php             # Configuración global + sesiones
+│   └── database.php        # Conexión MySQL
+├── assets/
+│   ├── css/style.css       # Estilos principales (diseño Figma)
+│   └── js/main.js          # JavaScript general
+├── includes/
+│   ├── header.php
+│   ├── navbar.php
+│   └── footer.php
+├── modules/
+│   ├── campaigns/          # Gestión de campañas
+│   ├── donations/          # Registro de donaciones
+│   ├── expenses/           # Registro de egresos
+│   └── reports/            # Reportes por campaña
+├── database/
+│   └── donatu.sql          # Schema completo MySQL
+└── .github/workflows/
+    └── ci.yml              # Pipeline CI/CD
 ```
 
-## Instalación y Ejecución
+## Instalación
 
 ### Prerequisitos
-- Node.js >= 18
-- PostgreSQL >= 14
-- npm >= 9
+- PHP >= 8.1
+- MySQL >= 8.0
+- Servidor web (XAMPP, WAMP, Laragon)
 
-### Backend
-
-```bash
-cd backend
-npm install
-cp .env.example .env   # Configurar variables de entorno
-npm run dev
-```
-
-### Frontend
+### Pasos
 
 ```bash
-cd frontend
-npm install
-npm run dev
+# 1. Clonar el repositorio
+git clone https://github.com/ElderGP18/sistema-donaciones.git
+cd sistema-donaciones
+
+# 2. Importar la base de datos
+mysql -u root -p < database/donatu.sql
+
+# 3. Configurar la conexión en config/database.php
+#    Cambiar DB_USER y DB_PASS si es necesario
+
+# 4. Apuntar el virtual host a la carpeta raíz
+#    O acceder desde: http://localhost/sistema-donaciones/
 ```
 
-### Variables de entorno (backend)
-
-```env
-PORT=3000
-DATABASE_URL=postgresql://usuario:password@localhost:5432/donaciones_db
-JWT_SECRET=tu_secreto_jwt
-NODE_ENV=development
+### Credenciales iniciales
 ```
+Correo:     admin@donatu.com
+Contraseña: password
+```
+> Cambiar en producción con: `password_hash('TuPassword', PASSWORD_BCRYPT)`
 
-## Funcionalidades Principales
+## Sprints
 
-- Registro y autenticación de usuarios (donantes, administradores)
-- Gestión de campañas de donación
-- Registro y seguimiento de donaciones
-- Panel de transparencia con reportes públicos
-- Notificaciones automáticas a donantes
-- Dashboard administrativo con métricas
-- Exportación de reportes en PDF
+| Sprint | Contenido | Estado |
+|---|---|---|
+| Sprint 1 | Login, Dashboard, Campañas, Donaciones, Egresos, Reportes | ✅ Completado |
+| Sprint 2 | Módulo de donantes, edición de campañas, exportar PDF | 🔄 Pendiente |
+| Sprint 3 | Pruebas, CI/CD completo, despliegue en producción | 🔄 Pendiente |
 
-## Metodología
+## Módulos Sprint 1
 
-El proyecto sigue la metodología **Scrum** con sprints de 2 semanas, gestionado en GitHub Projects.
+- **Autenticación** — Login con validación y sesiones PHP
+- **Dashboard** — KPIs en tiempo real (campañas, recaudado, egresos, saldo)
+- **Campañas** — Crear, listar y ver detalle con progreso visual
+- **Donaciones** — Registrar con donante nuevo o existente
+- **Egresos** — Registrar gastos por campaña
+- **Reportes** — Resumen financiero con gráfico de barras por mes
 
 ## Licencia
 
