@@ -1,5 +1,7 @@
 <?php
 define('APP_NAME', 'DonaTu');
+// LOCAL: http://localhost/donatu
+// HOSTINGER: https://tudominio.com  (sin slash al final)
 define('APP_URL', 'http://localhost/donatu');
 define('APP_VERSION', '1.0.0');
 
