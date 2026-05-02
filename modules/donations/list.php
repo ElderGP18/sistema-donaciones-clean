@@ -19,6 +19,7 @@ if ($res) while ($r = $res->fetch_assoc()) $donaciones[] = $r;
 $conn->close();
 
 $created = isset($_GET['created']);
+$deleted = isset($_GET['deleted']);
 include __DIR__ . '/../../includes/header.php';
 include __DIR__ . '/../../includes/navbar.php';
 ?>
@@ -27,6 +28,11 @@ include __DIR__ . '/../../includes/navbar.php';
   <?php if ($created): ?>
     <div class="alert alert-success" data-auto-hide>
       <i class="fas fa-check-circle"></i> ¡Donación registrada exitosamente!
+    </div>
+  <?php endif; ?>
+  <?php if ($deleted): ?>
+    <div class="alert alert-success" data-auto-hide>
+      <i class="fas fa-check-circle"></i> Donación eliminada.
     </div>
   <?php endif; ?>
 

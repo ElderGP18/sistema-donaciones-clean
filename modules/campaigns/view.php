@@ -32,6 +32,7 @@ $conn->close();
 $pageTitle  = htmlspecialchars($campana['nombre']);
 $activePage = 'campanas';
 $created    = isset($_GET['created']);
+$updated    = isset($_GET['updated']);
 
 include __DIR__ . '/../../includes/header.php';
 include __DIR__ . '/../../includes/navbar.php';
@@ -42,6 +43,11 @@ include __DIR__ . '/../../includes/navbar.php';
   <?php if ($created): ?>
     <div class="alert alert-success" data-auto-hide>
       <i class="fas fa-check-circle"></i> ¡Campaña creada exitosamente!
+    </div>
+  <?php endif; ?>
+  <?php if ($updated): ?>
+    <div class="alert alert-success" data-auto-hide>
+      <i class="fas fa-check-circle"></i> Campaña actualizada correctamente.
     </div>
   <?php endif; ?>
 

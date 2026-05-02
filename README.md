@@ -82,7 +82,7 @@ Contraseña: password
 | Sprint | Contenido | Estado |
 |---|---|---|
 | Sprint 1 | Login, Dashboard, Campañas, Donaciones, Egresos, Reportes | ✅ Completado |
-| Sprint 2 | Módulo de donantes, edición de campañas, exportar PDF | 🔄 Pendiente |
+| Sprint 2 | Módulo Donantes completo, Edición Campañas, Gestión Usuarios | ✅ Completado |
 | Sprint 3 | Pruebas, CI/CD completo, despliegue en producción | 🔄 Pendiente |
 
 ## Módulos Sprint 1

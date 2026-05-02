@@ -9,7 +9,11 @@
       <li><a href="<?= APP_URL ?>/modules/campaigns/list.php" class="<?= $activePage === 'campanas'   ? 'active' : '' ?>">Campañas</a></li>
       <?php if (isLoggedIn()): ?>
       <li><a href="<?= APP_URL ?>/modules/donations/list.php" class="<?= $activePage === 'donaciones' ? 'active' : '' ?>">Donaciones</a></li>
+      <li><a href="<?= APP_URL ?>/modules/donors/list.php"    class="<?= $activePage === 'donantes'   ? 'active' : '' ?>">Donantes</a></li>
       <li><a href="<?= APP_URL ?>/modules/reports/index.php"  class="<?= $activePage === 'reportes'   ? 'active' : '' ?>">Reportes</a></li>
+      <?php if ($_SESSION['user_rol'] === 'admin'): ?>
+      <li><a href="<?= APP_URL ?>/modules/users/list.php"     class="<?= $activePage === 'usuarios'   ? 'active' : '' ?>">Usuarios</a></li>
+      <?php endif; ?>
       <?php endif; ?>
       <li><a href="#">Nosotros</a></li>
     </ul>
