@@ -24,33 +24,34 @@ if ($campanaId) {
     $campana = $s->get_result()->fetch_assoc(); $s->close();
 
     if ($campana) {
-        $r = $conn->query("SELECT COALESCE(SUM(monto),0) s, COUNT(*) c FROM donaciones WHERE id_campana=$campanaId");
-        $row = $r->fetch_assoc(); $totalDonado = $row['s']; $numDonantes = $row['c'];
+        $st = $conn->prepare("SELECT COALESCE(SUM(monto),0) s, COUNT(*) c FROM donaciones WHERE id_campana = ?");
+        $st->bind_param('i', $campanaId); $st->execute();
+        $row = $st->get_result()->fetch_assoc(); $totalDonado = $row['s']; $numDonantes = $row['c']; $st->close();
 
-        $r = $conn->query("SELECT COALESCE(SUM(monto),0) s FROM egresos WHERE id_campana=$campanaId");
-        $totalEgresos = $r->fetch_assoc()['s'];
+        $st = $conn->prepare("SELECT COALESCE(SUM(monto),0) s FROM egresos WHERE id_campana = ?");
+        $st->bind_param('i', $campanaId); $st->execute();
+        $totalEgresos = $st->get_result()->fetch_assoc()['s']; $st->close();
         $saldo = $totalDonado - $totalEgresos;
 
         /* Últimas donaciones */
-        $res2 = $conn->query("SELECT d.fecha, d.monto, dn.nombre FROM donaciones d JOIN donantes dn ON dn.id_donante=d.id_donante WHERE d.id_campana=$campanaId ORDER BY d.fecha DESC LIMIT 10");
-        if ($res2) while ($r2 = $res2->fetch_assoc()) $donaciones[] = $r2;
+        $st = $conn->prepare("SELECT d.fecha, d.monto, dn.nombre FROM donaciones d JOIN donantes dn ON dn.id_donante=d.id_donante WHERE d.id_campana=? ORDER BY d.fecha DESC LIMIT 10");
+        $st->bind_param('i', $campanaId); $st->execute();
+        $res2 = $st->get_result();
+        while ($r2 = $res2->fetch_assoc()) $donaciones[] = $r2; $st->close();
 
         /* Últimos egresos */
-        $res2 = $conn->query("SELECT fecha, concepto, monto FROM egresos WHERE id_campana=$campanaId ORDER BY fecha DESC LIMIT 10");
-        if ($res2) while ($r2 = $res2->fetch_assoc()) $egresos[] = $r2;
+        $st = $conn->prepare("SELECT fecha, concepto, monto FROM egresos WHERE id_campana=? ORDER BY fecha DESC LIMIT 10");
+        $st->bind_param('i', $campanaId); $st->execute();
+        $res2 = $st->get_result();
+        while ($r2 = $res2->fetch_assoc()) $egresos[] = $r2; $st->close();
 
         /* Donaciones por mes (últimos 6 meses) */
-        $res2 = $conn->query("
-            SELECT DATE_FORMAT(fecha,'%b') mes_label, DATE_FORMAT(fecha,'%Y-%m') mes_key,
-                   SUM(monto) total
-            FROM donaciones WHERE id_campana=$campanaId
-            GROUP BY mes_key, mes_label ORDER BY mes_key DESC LIMIT 6
-        ");
-        if ($res2) {
-            $tmp = [];
-            while ($r2 = $res2->fetch_assoc()) $tmp[] = $r2;
-            $donacionesMes = array_reverse($tmp);
-        }
+        $st = $conn->prepare("SELECT DATE_FORMAT(fecha,'%b') mes_label, DATE_FORMAT(fecha,'%Y-%m') mes_key, SUM(monto) total FROM donaciones WHERE id_campana=? GROUP BY mes_key, mes_label ORDER BY mes_key DESC LIMIT 6");
+        $st->bind_param('i', $campanaId); $st->execute();
+        $res2 = $st->get_result();
+        $tmp = [];
+        while ($r2 = $res2->fetch_assoc()) $tmp[] = $r2;
+        $donacionesMes = array_reverse($tmp); $st->close();
     }
 }
 $conn->close();

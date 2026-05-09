@@ -1,0 +1,20 @@
+{
+    "name": "donatu/donatu",
+    "description": "Plataforma de Gestión de Donaciones y Rendición de Cuentas",
+    "type": "project",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

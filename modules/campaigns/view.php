@@ -14,18 +14,23 @@ $stmt->close();
 if (!$campana) { $conn->close(); redirect('modules/campaigns/list.php'); }
 
 /* Totales */
-$r = $conn->query("SELECT COALESCE(SUM(monto),0) AS s, COUNT(*) AS c FROM donaciones WHERE id_campana=$id");
-$row = $r->fetch_assoc(); $totalDonado = $row['s']; $numDonaciones = $row['c'];
+$stmt = $conn->prepare("SELECT COALESCE(SUM(monto),0) AS s, COUNT(*) AS c FROM donaciones WHERE id_campana = ?");
+$stmt->bind_param('i', $id); $stmt->execute();
+$row = $stmt->get_result()->fetch_assoc(); $totalDonado = $row['s']; $numDonaciones = $row['c']; $stmt->close();
 
-$r = $conn->query("SELECT COALESCE(SUM(monto),0) AS s FROM egresos WHERE id_campana=$id");
-$totalEgresos = $r->fetch_assoc()['s'];
+$stmt = $conn->prepare("SELECT COALESCE(SUM(monto),0) AS s FROM egresos WHERE id_campana = ?");
+$stmt->bind_param('i', $id); $stmt->execute();
+$totalEgresos = $stmt->get_result()->fetch_assoc()['s']; $stmt->close();
 $saldo = $totalDonado - $totalEgresos;
 $pct   = $campana['meta'] > 0 ? min(100, round($totalDonado / $campana['meta'] * 100)) : 0;
 
 /* Últimas donaciones de esta campaña */
 $donaciones = [];
-$res = $conn->query("SELECT d.fecha, d.monto, dn.nombre FROM donaciones d JOIN donantes dn ON dn.id_donante=d.id_donante WHERE d.id_campana=$id ORDER BY d.fecha DESC LIMIT 10");
-if ($res) while ($row = $res->fetch_assoc()) $donaciones[] = $row;
+$stmt = $conn->prepare("SELECT d.fecha, d.monto, dn.nombre FROM donaciones d JOIN donantes dn ON dn.id_donante=d.id_donante WHERE d.id_campana=? ORDER BY d.fecha DESC LIMIT 10");
+$stmt->bind_param('i', $id); $stmt->execute();
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) $donaciones[] = $row;
+$stmt->close();
 
 $conn->close();
 

@@ -5,7 +5,9 @@ define('APP_NAME', 'DonaTu');
 define('APP_URL', 'http://localhost/donatu');
 define('APP_VERSION', '1.0.0');
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);

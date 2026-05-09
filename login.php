@@ -6,7 +6,8 @@ if (isLoggedIn()) {
     redirect('dashboard.php');
 }
 
-$error = '';
+$error      = '';
+$registered = isset($_GET['registered']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $correo   = sanitize($_POST['correo']   ?? '');
@@ -96,6 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h2>Bienvenido de vuelta</h2>
       <p class="sub">Ingresa tus credenciales para continuar</p>
 
+      <?php if ($registered): ?>
+        <div class="alert alert-success" data-auto-hide>
+          <i class="fas fa-check-circle"></i> ¡Cuenta creada! Ingresa con tus credenciales.
+        </div>
+      <?php endif; ?>
       <?php if ($error): ?>
         <div class="alert alert-danger" data-auto-hide>
           <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
