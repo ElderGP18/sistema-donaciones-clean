@@ -1,9 +1,10 @@
 <?php
-// LOCAL: cambiar estos valores por los de Hostinger al desplegar
+// LOCAL: http://localhost/donatu  → DB_USER='root', DB_PASS='', DB_NAME='donatu_db'
+// HOSTINGER (activo):
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');         // Hostinger: usuario que creas en hPanel
-define('DB_PASS', '');             // Hostinger: contraseña de tu base de datos
-define('DB_NAME', 'donatu_db');    // Hostinger: nombre que le pongas a la BD
+define('DB_USER', 'u949489569_Donacion2026');
+define('DB_PASS', 'SisDonacion2026');
+define('DB_NAME', 'u949489569_Donacion2026');
 define('DB_CHARSET', 'utf8mb4');
 
 function getConnection(): mysqli {
