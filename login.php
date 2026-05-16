@@ -18,25 +18,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $conn = getConnection();
         $stmt = $conn->prepare("SELECT id_usuario, nombre, correo, password, rol FROM usuarios WHERE correo = ? AND activo = 1");
-        $stmt->bind_param('s', $correo);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        if (!$stmt) {
+            $error = 'Error del servidor. Intenta de nuevo.';
+            $conn->close();
+        } else {
+            $stmt->bind_param('s', $correo);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if ($row = $result->fetch_assoc()) {
-            if (password_verify($password, $row['password'])) {
-                $_SESSION['user_id']     = $row['id_usuario'];
-                $_SESSION['user_nombre'] = $row['nombre'];
-                $_SESSION['user_correo'] = $row['correo'];
-                $_SESSION['user_rol']    = $row['rol'];
-                redirect('dashboard.php');
+            if ($row = $result->fetch_assoc()) {
+                if (password_verify($password, $row['password'])) {
+                    $_SESSION['user_id']     = $row['id_usuario'];
+                    $_SESSION['user_nombre'] = $row['nombre'];
+                    $_SESSION['user_correo'] = $row['correo'];
+                    $_SESSION['user_rol']    = $row['rol'];
+                    redirect('dashboard.php');
+                } else {
+                    $error = 'Correo o contraseña incorrectos.';
+                }
             } else {
                 $error = 'Correo o contraseña incorrectos.';
             }
-        } else {
-            $error = 'Correo o contraseña incorrectos.';
+            $stmt->close();
+            $conn->close();
         }
-        $stmt->close();
-        $conn->close();
     }
 }
 ?>
