@@ -1,18 +1,11 @@
 -- ============================================================
--- DONATU - Script completo para Hostinger
+-- DONATU - Script para Hostinger
 -- Base de datos: u949489569_Donacion2026
 -- Importar en: hPanel > phpMyAdmin > Importar
 -- ============================================================
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
--- Borrar tablas si ya existen (en orden por claves foraneas)
-DROP TABLE IF EXISTS `donaciones`;
-DROP TABLE IF EXISTS `egresos`;
-DROP TABLE IF EXISTS `campanas`;
-DROP TABLE IF EXISTS `donantes`;
-DROP TABLE IF EXISTS `usuarios`;
 
 -- ============================================================
 -- TABLA: usuarios
