@@ -104,9 +104,9 @@ include __DIR__ . '/includes/navbar.php';
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:1.5rem">
       <?php
       $equipo = [
-        ['Elder Estuardo García Pacheco',    '0900 24 9106'],
-        ['Mario Estuardo López Rodas',        null],
-        ['Allan Wilfredo Estrada Recinos',    null],
+        ['Elder Estuardo García Pacheco',  '0900-24-9106'],
+        ['Mario Estuardo López Rodas',     '0900-22-9412'],
+        ['Allan Wilfredo Estrada Recinos', '0900-22-18429'],
       ];
       $colores = [
         'linear-gradient(135deg,var(--primary),var(--accent))',

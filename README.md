@@ -2,8 +2,15 @@
 
 Plataforma web para la gestión transparente de donaciones, seguimiento de egresos y rendición de cuentas a donantes.
 
-**Alumno:** Elder Estuardo García Pacheco | **Carné:** 0900 24 9106  
 **Universidad Mariano Gálvez** | Ingeniería de Software
+
+## Equipo de Desarrollo
+
+| Nombre | Carné |
+|---|---|
+| Elder Estuardo García Pacheco | 0900-24-9106 |
+| Mario Estuardo López Rodas | 0900-22-9412 |
+| Allan Wilfredo Estrada Recinos | 0900-22-18429 |
 
 ---
 
