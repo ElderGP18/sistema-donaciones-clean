@@ -80,9 +80,11 @@ include __DIR__ . '/../../includes/navbar.php';
         </div>
       </div>
 
+      <?php if ($_SESSION['user_rol'] === 'admin'): ?>
       <a href="<?= APP_URL ?>/modules/donors/edit.php?id=<?= $id ?>" class="btn btn-primary" style="width:100%;justify-content:center">
         <i class="fas fa-edit"></i> Editar Donante
       </a>
+      <?php endif; ?>
     </div>
 
     <!-- Historial de donaciones -->

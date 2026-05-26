@@ -44,9 +44,11 @@ include __DIR__ . '/../../includes/navbar.php';
       <h1 class="section-title">Donantes</h1>
       <p class="section-sub">Registro de todas las personas que han apoyado las campañas</p>
     </div>
+    <?php if ($_SESSION['user_rol'] === 'admin'): ?>
     <a href="<?= APP_URL ?>/modules/donors/create.php" class="btn btn-primary">
       <i class="fas fa-plus"></i> Nuevo Donante
     </a>
+    <?php endif; ?>
   </div>
 
   <!-- Buscador -->
@@ -64,9 +66,11 @@ include __DIR__ . '/../../includes/navbar.php';
       <div style="padding:3rem;text-align:center;color:var(--text-muted)">
         <i class="fas fa-users" style="font-size:3rem;opacity:.3;display:block;margin-bottom:1rem"></i>
         <p>No hay donantes registrados.</p>
+        <?php if ($_SESSION['user_rol'] === 'admin'): ?>
         <a href="<?= APP_URL ?>/modules/donors/create.php" class="btn btn-primary" style="margin-top:1rem;display:inline-flex">
           <i class="fas fa-plus"></i> Registrar primer donante
         </a>
+        <?php endif; ?>
       </div>
     <?php else: ?>
       <div class="table-responsive">
@@ -108,10 +112,12 @@ include __DIR__ . '/../../includes/navbar.php';
                       style="color:var(--accent);font-size:.8rem;text-decoration:none;padding:.3rem .6rem;background:#eff6ff;border-radius:4px">
                       <i class="fas fa-eye"></i>
                     </a>
+                    <?php if ($_SESSION['user_rol'] === 'admin'): ?>
                     <a href="<?= APP_URL ?>/modules/donors/edit.php?id=<?= $d['id_donante'] ?>"
                       style="color:#7c3aed;font-size:.8rem;text-decoration:none;padding:.3rem .6rem;background:#faf5ff;border-radius:4px">
                       <i class="fas fa-edit"></i>
                     </a>
+                    <?php endif; ?>
                     <?php if ($_SESSION['user_rol'] === 'admin'): ?>
                       <a href="<?= APP_URL ?>/modules/donors/delete.php?id=<?= $d['id_donante'] ?>"
                         data-confirm="¿Eliminar este donante? Se eliminarán también sus donaciones."
