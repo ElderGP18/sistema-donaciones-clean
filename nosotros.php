@@ -98,31 +98,49 @@ include __DIR__ . '/includes/navbar.php';
     </div>
   </div>
 
-  <!-- Desarrollador -->
+  <!-- Equipo de Desarrollo -->
   <div class="table-card" style="padding:1.75rem;margin-bottom:1.5rem">
-    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;text-align:center">Desarrollador</h2>
-    <div style="max-width:480px;margin:0 auto;text-align:center">
-      <div style="width:5rem;height:5rem;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
-        <i class="fas fa-user-graduate" style="font-size:2rem;color:#fff"></i>
-      </div>
-      <h3 style="font-weight:800;font-size:1.1rem">Elder Estuardo García Pacheco</h3>
-      <p style="color:var(--text-muted);font-size:.9rem;margin:.25rem 0">Carné: 0900 24 9106</p>
-      <p style="color:var(--text-muted);font-size:.9rem;margin:.25rem 0">Ingeniería de Software</p>
-      <p style="color:var(--text-muted);font-size:.9rem;margin:.25rem 0">Universidad Mariano Gálvez de Guatemala</p>
-      <div style="display:flex;justify-content:center;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap">
-        <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
-          <i class="fab fa-php" style="color:#777bb4"></i> PHP 8.3
-        </span>
-        <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
-          <i class="fas fa-database" style="color:#4479a1"></i> MySQL 8
-        </span>
-        <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
-          <i class="fab fa-bootstrap" style="color:#7952b3"></i> Bootstrap
-        </span>
-        <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
-          <i class="fab fa-github"></i> GitHub CI/CD
-        </span>
-      </div>
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;text-align:center">Equipo de Desarrollo</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:1.5rem">
+      <?php
+      $equipo = [
+        ['Elder Estuardo García Pacheco',    '0900 24 9106'],
+        ['Mario Estuardo López Rodas',        null],
+        ['Allan Wilfredo Estrada Recinos',    null],
+      ];
+      $colores = [
+        'linear-gradient(135deg,var(--primary),var(--accent))',
+        'linear-gradient(135deg,#059669,#10b981)',
+        'linear-gradient(135deg,#7c3aed,#a78bfa)',
+      ];
+      foreach ($equipo as $i => $m): ?>
+        <div style="text-align:center;padding:1.5rem 1rem;border:1.5px solid var(--border);border-radius:var(--radius)">
+          <div style="width:4rem;height:4rem;border-radius:50%;background:<?= $colores[$i] ?>;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem">
+            <i class="fas fa-user-graduate" style="font-size:1.6rem;color:#fff"></i>
+          </div>
+          <div style="font-weight:700;font-size:.95rem;margin-bottom:.3rem"><?= $m[0] ?></div>
+          <?php if ($m[1]): ?>
+            <div style="font-size:.8rem;color:var(--text-muted)">Carné: <?= $m[1] ?></div>
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+    </div>
+    <p style="text-align:center;color:var(--text-muted);font-size:.9rem">
+      Ingeniería de Software &mdash; Universidad Mariano Gálvez de Guatemala
+    </p>
+    <div style="display:flex;justify-content:center;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap">
+      <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
+        <i class="fab fa-php" style="color:#777bb4"></i> PHP 8.3
+      </span>
+      <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
+        <i class="fas fa-database" style="color:#4479a1"></i> MySQL 8
+      </span>
+      <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
+        <i class="fab fa-bootstrap" style="color:#7952b3"></i> Bootstrap
+      </span>
+      <span style="background:var(--bg-light);border:1px solid var(--border);border-radius:999px;padding:.3rem .9rem;font-size:.8rem">
+        <i class="fab fa-github"></i> GitHub CI/CD
+      </span>
     </div>
   </div>
 
