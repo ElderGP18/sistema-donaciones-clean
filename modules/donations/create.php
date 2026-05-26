@@ -14,42 +14,62 @@ $campanas = [];
 $res = $conn->query("SELECT id_campana, nombre, meta, COALESCE((SELECT SUM(monto) FROM donaciones WHERE id_campana=c.id_campana),0) AS recaudado FROM campanas c WHERE estado='activa' ORDER BY nombre");
 if ($res) while ($r = $res->fetch_assoc()) $campanas[] = $r;
 
-/* Donantes existentes */
-$donantes = [];
-$res = $conn->query("SELECT id_donante, nombre, correo FROM donantes ORDER BY nombre");
-if ($res) while ($r = $res->fetch_assoc()) $donantes[] = $r;
+/* Buscar o crear registro de donante para el usuario logueado */
+$miDonanteId = 0;
+$stmt = $conn->prepare("SELECT id_donante FROM donantes WHERE correo = ?");
+$stmt->bind_param('s', $_SESSION['user_correo']);
+$stmt->execute();
+$stmt->store_result();
+if ($stmt->num_rows > 0) {
+    $stmt->bind_result($miDonanteId);
+    $stmt->fetch();
+} else {
+    $stmt->close();
+    $ins = $conn->prepare("INSERT INTO donantes (nombre, correo) VALUES (?, ?)");
+    $ins->bind_param('ss', $_SESSION['user_nombre'], $_SESSION['user_correo']);
+    $ins->execute();
+    $miDonanteId = $conn->insert_id;
+    $ins->close();
+}
+if ($stmt->num_rows > 0) $stmt->close();
+
+/* Buscar o crear donante Anónimo */
+$anonimoId = 0;
+$stmt2 = $conn->prepare("SELECT id_donante FROM donantes WHERE nombre = 'Anónimo' AND correo IS NULL LIMIT 1");
+$stmt2->execute();
+$stmt2->store_result();
+if ($stmt2->num_rows > 0) {
+    $stmt2->bind_result($anonimoId);
+    $stmt2->fetch();
+} else {
+    $stmt2->close();
+    $ins2 = $conn->prepare("INSERT INTO donantes (nombre) VALUES ('Anónimo')");
+    $ins2->execute();
+    $anonimoId = $conn->insert_id;
+    $ins2->close();
+}
+if ($stmt2->num_rows > 0) $stmt2->close();
 
 $campanaSeleccionada = null;
 $campanaId = intval($_GET['campana'] ?? $_POST['id_campana'] ?? 0);
 if ($campanaId) {
-    foreach ($campanas as $c) { if ($c['id_campana'] == $campanaId) { $campanaSeleccionada = $c; break; } }
+    foreach ($campanas as $c) {
+        if ($c['id_campana'] == $campanaId) { $campanaSeleccionada = $c; break; }
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_campana  = intval($_POST['id_campana']  ?? 0);
-    $monto       = floatval($_POST['monto']      ?? 0);
-    $fecha       = $_POST['fecha']               ?? date('Y-m-d');
-    $donante_opt = $_POST['donante_opt']         ?? 'existente';
+    $id_campana  = intval($_POST['id_campana'] ?? 0);
+    $monto       = floatval($_POST['monto']    ?? 0);
+    $fecha       = $_POST['fecha']             ?? date('Y-m-d');
+    $donante_opt = $_POST['donante_opt']       ?? 'yo';
 
-    if (!$id_campana)   $errors[] = 'Selecciona una campaña.';
-    if ($monto <= 0)    $errors[] = 'El monto debe ser mayor a 0.';
-    if (empty($fecha))  $errors[] = 'La fecha es obligatoria.';
+    if (!$id_campana) $errors[] = 'Selecciona una campaña.';
+    if ($monto <= 0)  $errors[] = 'El monto debe ser mayor a 0.';
+    if (empty($fecha)) $errors[] = 'La fecha es obligatoria.';
 
-    $id_donante = 0;
-    if ($donante_opt === 'nuevo') {
-        $dnombre = sanitize($_POST['d_nombre'] ?? '');
-        $dcorreo = sanitize($_POST['d_correo'] ?? '');
-        $dtel    = sanitize($_POST['d_telefono'] ?? '');
-        if (empty($dnombre)) $errors[] = 'El nombre del donante es obligatorio.';
-        if (empty($errors)) {
-            $s = $conn->prepare("INSERT INTO donantes (nombre, correo, telefono) VALUES (?,?,?)");
-            $s->bind_param('sss', $dnombre, $dcorreo, $dtel);
-            $s->execute(); $id_donante = $conn->insert_id; $s->close();
-        }
-    } else {
-        $id_donante = intval($_POST['id_donante'] ?? 0);
-        if (!$id_donante) $errors[] = 'Selecciona un donante.';
-    }
+    $id_donante = $donante_opt === 'anonimo' ? $anonimoId : $miDonanteId;
+    if (!$id_donante) $errors[] = 'Error al identificar el donante.';
 
     if (empty($errors)) {
         $s = $conn->prepare("INSERT INTO donaciones (fecha, monto, id_campana, id_donante, id_usuario) VALUES (?,?,?,?,?)");
@@ -85,20 +105,18 @@ include __DIR__ . '/../../includes/navbar.php';
 
   <div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start">
 
-    <!-- Formulario -->
     <form method="POST" action="">
+      <!-- Campaña y Monto -->
       <div class="table-card" style="padding:1.75rem;margin-bottom:1rem">
         <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">
           Campaña y Monto
         </h3>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
           <div style="grid-column:1/-1">
             <label class="form-label">Campaña Destino <span style="color:var(--danger)">*</span></label>
             <div class="input-group">
               <i class="fas fa-bullhorn input-icon"></i>
-              <select name="id_campana" class="form-control" style="padding-left:2.25rem" required
-                onchange="this.form.submit()">
+              <select name="id_campana" class="form-control" style="padding-left:2.25rem" required onchange="this.form.submit()">
                 <option value="">Seleccionar campaña ▾</option>
                 <?php foreach ($campanas as $c): ?>
                   <option value="<?= $c['id_campana'] ?>" <?= $campanaId == $c['id_campana'] ? 'selected' : '' ?>>
@@ -108,16 +126,14 @@ include __DIR__ . '/../../includes/navbar.php';
               </select>
             </div>
           </div>
-
           <div>
             <label class="form-label">Monto (Q) <span style="color:var(--danger)">*</span></label>
             <div class="input-group">
               <i class="fas fa-dollar-sign input-icon"></i>
               <input type="number" name="monto" step="0.01" min="1" class="form-control"
-                placeholder="0.00" data-currency value="<?= htmlspecialchars($_POST['monto'] ?? '') ?>" required>
+                placeholder="0.00" value="<?= htmlspecialchars($_POST['monto'] ?? '') ?>" required>
             </div>
           </div>
-
           <div>
             <label class="form-label">Fecha <span style="color:var(--danger)">*</span></label>
             <div class="input-group">
@@ -129,72 +145,45 @@ include __DIR__ . '/../../includes/navbar.php';
         </div>
       </div>
 
+      <!-- Donante -->
       <div class="table-card" style="padding:1.75rem">
         <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">
-          Datos del Donante
+          Donante
         </h3>
 
-        <div style="display:flex;gap:.75rem;margin-bottom:1.25rem">
-          <label style="cursor:pointer;display:flex;align-items:center;gap:.4rem;font-size:.9rem">
-            <input type="radio" name="donante_opt" value="existente"
-              <?= ($_POST['donante_opt'] ?? 'existente') === 'existente' ? 'checked' : '' ?>
-              onchange="toggleDonante(this.value)">
-            Donante existente
-          </label>
-          <label style="cursor:pointer;display:flex;align-items:center;gap:.4rem;font-size:.9rem">
-            <input type="radio" name="donante_opt" value="nuevo"
-              <?= ($_POST['donante_opt'] ?? '') === 'nuevo' ? 'checked' : '' ?>
-              onchange="toggleDonante(this.value)">
-            Nuevo donante
-          </label>
-        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 
-        <div id="donante-existente" <?= ($_POST['donante_opt'] ?? '') === 'nuevo' ? 'style="display:none"' : '' ?>>
-          <label class="form-label">Seleccionar Donante <span style="color:var(--danger)">*</span></label>
-          <div class="input-group">
-            <i class="fas fa-user input-icon"></i>
-            <select name="id_donante" class="form-control" style="padding-left:2.25rem">
-              <option value="">Seleccionar donante ▾</option>
-              <?php foreach ($donantes as $d): ?>
-                <option value="<?= $d['id_donante'] ?>" <?= ($_POST['id_donante'] ?? 0) == $d['id_donante'] ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($d['nombre']) ?><?= $d['correo'] ? ' — ' . $d['correo'] : '' ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-        </div>
+          <label style="cursor:pointer;border:2px solid var(--border);border-radius:var(--radius);padding:1rem;display:flex;align-items:center;gap:.75rem;transition:.2s"
+            id="lbl-yo" onclick="selectDonante('yo')">
+            <input type="radio" name="donante_opt" value="yo"
+              <?= ($_POST['donante_opt'] ?? 'yo') === 'yo' ? 'checked' : '' ?> style="display:none">
+            <span style="width:2.5rem;height:2.5rem;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-user" style="color:#fff;font-size:1rem"></i>
+            </span>
+            <div>
+              <div style="font-weight:700;font-size:.9rem"><?= htmlspecialchars($_SESSION['user_nombre']) ?></div>
+              <div style="font-size:.75rem;color:var(--text-muted)">Mi cuenta</div>
+            </div>
+          </label>
 
-        <div id="donante-nuevo" <?= ($_POST['donante_opt'] ?? 'existente') !== 'nuevo' ? 'style="display:none"' : '' ?>>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-            <div style="grid-column:1/-1">
-              <label class="form-label">Nombre Completo <span style="color:var(--danger)">*</span></label>
-              <div class="input-group">
-                <i class="fas fa-user input-icon"></i>
-                <input type="text" name="d_nombre" class="form-control" placeholder="Nombre del donante"
-                  value="<?= htmlspecialchars($_POST['d_nombre'] ?? '') ?>">
-              </div>
-            </div>
+          <label style="cursor:pointer;border:2px solid var(--border);border-radius:var(--radius);padding:1rem;display:flex;align-items:center;gap:.75rem;transition:.2s"
+            id="lbl-anonimo" onclick="selectDonante('anonimo')">
+            <input type="radio" name="donante_opt" value="anonimo"
+              <?= ($_POST['donante_opt'] ?? '') === 'anonimo' ? 'checked' : '' ?> style="display:none">
+            <span style="width:2.5rem;height:2.5rem;border-radius:50%;background:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-user-secret" style="color:#fff;font-size:1rem"></i>
+            </span>
             <div>
-              <label class="form-label">Correo Electrónico</label>
-              <div class="input-group">
-                <i class="fas fa-envelope input-icon"></i>
-                <input type="email" name="d_correo" class="form-control" placeholder="correo@ejemplo.com"
-                  value="<?= htmlspecialchars($_POST['d_correo'] ?? '') ?>">
-              </div>
+              <div style="font-weight:700;font-size:.9rem">Anónimo</div>
+              <div style="font-size:.75rem;color:var(--text-muted)">Ocultar identidad</div>
             </div>
-            <div>
-              <label class="form-label">Teléfono</label>
-              <div class="input-group">
-                <i class="fas fa-phone input-icon"></i>
-                <input type="text" name="d_telefono" class="form-control" placeholder="+502 0000-0000"
-                  value="<?= htmlspecialchars($_POST['d_telefono'] ?? '') ?>">
-              </div>
-            </div>
-          </div>
+          </label>
+
         </div>
 
         <div style="display:flex;gap:.75rem;margin-top:1.75rem;justify-content:flex-end">
-          <a href="<?= APP_URL ?>/modules/donations/list.php" class="btn" style="background:var(--bg-light);border:1.5px solid var(--border);color:var(--text-dark);border-radius:var(--radius);font-weight:600;padding:.65rem 1.25rem;text-decoration:none">
+          <a href="<?= APP_URL ?>/modules/donations/list.php" class="btn"
+            style="background:var(--bg-light);border:1.5px solid var(--border);color:var(--text-dark);border-radius:var(--radius);font-weight:600;padding:.65rem 1.25rem;text-decoration:none">
             Cancelar
           </a>
           <button type="submit" class="btn btn-primary" style="width:auto;padding:.65rem 2rem">
@@ -204,7 +193,7 @@ include __DIR__ . '/../../includes/navbar.php';
       </div>
     </form>
 
-    <!-- Panel lateral: campaña seleccionada -->
+    <!-- Panel lateral -->
     <div>
       <?php if ($campanaSeleccionada):
         $pct = $campanaSeleccionada['meta'] > 0
@@ -221,15 +210,10 @@ include __DIR__ . '/../../includes/navbar.php';
             Meta: <strong>Q <?= number_format($campanaSeleccionada['meta'],2) ?></strong>
           </div>
           <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:.75rem">
-            Recaudado: <strong>Q <?= number_format($campanaSeleccionada['recaudado'],2) ?></strong>
-            (<?= $pct ?>%)
+            Recaudado: <strong>Q <?= number_format($campanaSeleccionada['recaudado'],2) ?></strong> (<?= $pct ?>%)
           </div>
           <div class="progress-bar-track">
             <div class="progress-bar-fill" data-width="<?= $pct ?>" style="width:0"></div>
-          </div>
-          <div style="margin-top:1rem;padding:.75rem;background:#eff6ff;border-radius:var(--radius);font-size:.8rem;color:var(--accent)">
-            <i class="fas fa-info-circle"></i>
-            La donación será verificada y registrada en el sistema.
           </div>
         </div>
       <?php else: ?>
@@ -244,9 +228,17 @@ include __DIR__ . '/../../includes/navbar.php';
 </div>
 
 <script>
-function toggleDonante(val) {
-  document.getElementById('donante-existente').style.display = val === 'existente' ? '' : 'none';
-  document.getElementById('donante-nuevo').style.display     = val === 'nuevo'      ? '' : 'none';
+const sel = '<?= ($_POST['donante_opt'] ?? 'yo') ?>';
+highlightDonante(sel);
+
+function selectDonante(val) {
+    document.querySelector('input[name="donante_opt"][value="' + val + '"]').checked = true;
+    highlightDonante(val);
+}
+function highlightDonante(val) {
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    document.getElementById('lbl-yo').style.borderColor      = val === 'yo'      ? accent       : 'var(--border)';
+    document.getElementById('lbl-anonimo').style.borderColor = val === 'anonimo' ? '#64748b'    : 'var(--border)';
 }
 </script>
 

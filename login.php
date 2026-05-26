@@ -147,19 +147,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </button>
       </form>
 
-      <div class="divider">o continúa con</div>
-
-      <div class="oauth-btns">
-        <button class="btn btn-outline" disabled>
-          <i class="fab fa-google" style="color:#ea4335"></i> Google
-          <small style="color:#94a3b8;font-size:.7rem">(próximamente)</small>
-        </button>
-        <button class="btn btn-outline" disabled>
-          <i class="fab fa-microsoft" style="color:#00a4ef"></i> Microsoft
-          <small style="color:#94a3b8;font-size:.7rem">(próximamente)</small>
-        </button>
-      </div>
-
       <p class="register-link">
         ¿No tienes cuenta? <a href="<?= APP_URL ?>/register.php">Regístrate gratis →</a>
       </p>

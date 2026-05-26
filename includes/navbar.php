@@ -15,7 +15,7 @@
       <li><a href="<?= APP_URL ?>/modules/users/list.php"     class="<?= $activePage === 'usuarios'   ? 'active' : '' ?>">Usuarios</a></li>
       <?php endif; ?>
       <?php endif; ?>
-      <li><a href="#">Nosotros</a></li>
+      <li><a href="<?= APP_URL ?>/nosotros.php" class="<?= $activePage === 'nosotros' ? 'active' : '' ?>">Nosotros</a></li>
     </ul>
 
     <div class="navbar-user">
